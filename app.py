@@ -68,11 +68,7 @@ def fetch_companies() -> CompanyResponse:
 @app.route("/companies", methods=["GET"])
 def get_companies():
     result = fetch_companies()
-    print("Kieu du lieu: ", type(result))
-    print("Kieu du lieu: ", type(result.to_dict()))
-    print("Kieu du lieu: ", type(jsonify(result.to_dict())))
     return result.to_dict()
-
 
 # RUN SERVER
 if __name__ == "__main__":
