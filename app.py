@@ -26,54 +26,53 @@ class Company:
 class CompanyResponse:
     def __init__(self):
         self.companies: List[Company] = []
-
+        
     def add_company(self, company: Company):
         self.companies.append(company)
 
     def to_dict(self):
         return {
-            "total": len(self.companies),
             "companies": [c.to_dict() for c in self.companies]
         }
     
+URL = "https://fake-json-api.mock.beeceptor.com/companies"
+def fetch_companies() -> CompanyResponse:
+    response = requests.get(URL)
 
-# SERVICE CLASS
-class CompanyService:
-    URL = "https://fake-json-api.mock.beeceptor.com/companies"
-    def fetch_companies(self) -> CompanyResponse:
-        response = requests.get(self.URL)
+    if response.status_code != 200:
+        raise Exception("Failed to fetch data")
 
-        if response.status_code != 200:
-            raise Exception("Failed to fetch data")
+    data = response.json()
+    result = CompanyResponse()
 
-        data = response.json()
-        result = CompanyResponse()
+    for item in data:
+        company = Company(
+            id=item.get("id"),
+            name=item.get("name"),
+            address=item.get("address"),
+            zip_code=item.get("zip"),
+            country=item.get("country"),
+            employee_count=item.get("employeeCount"),
+            industry=item.get("industry"),
+            market_cap=item.get("marketCap"),
+            domain=item.get("domain"),
+            logo=item.get("logo")
+        )
+        print(company.__dict__)
+        result.add_company(company)
 
-        for item in data:
-            company = Company(
-                id=item.get("id"),
-                name=item.get("name"),
-                address=item.get("address"),
-                zip_code=item.get("zip"),
-                country=item.get("country"),
-                employee_count=item.get("employeeCount"),
-                industry=item.get("industry"),
-                market_cap=item.get("marketCap"),
-                domain=item.get("domain"),
-                logo=item.get("logo")
-            )
-            print(company.__dict__)
-            result.add_company(company)
-
-        return result
+    return result
 
 
 # API ENDPOINT  
 @app.route("/companies", methods=["GET"])
 def get_companies():
-    service = CompanyService()
-    result = service.fetch_companies()
-    return jsonify(result.to_dict())
+    result = fetch_companies()
+    print("Kieu du lieu: ", type(result))
+    print("Kieu du lieu: ", type(result.to_dict()))
+    print("Kieu du lieu: ", type(jsonify(result.to_dict())))
+    return result.to_dict()
+
 
 # RUN SERVER
 if __name__ == "__main__":
